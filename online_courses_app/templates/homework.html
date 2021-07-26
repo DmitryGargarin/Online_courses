@@ -1,0 +1,49 @@
+{%extends "base.html"%}
+{% load crispy_forms_tags %}
+{%block main%}
+<h2>Домашняя работа (студент {{homework.student.first_name}} {{homework.student.last_name}})</h2>
+<a href="/lecture?id={{homework.lecture.id}}">Lecture link</a>
+<div style="border: 1px solid black">
+    <h2>Задание:</h2>{{homework.lecture.task}}
+</div><br>
+<div style="border: 1px solid black">
+    <h2>Решение:</h2>{{homework.answer}}
+</div><br>
+<div style="border: 1px solid black">
+    <h2>Отметка:</h2>{{homework.mark}}/5
+    {%if user.is_staff%}
+        <h4>Изменить отметку: </h4>
+        <form method="post">
+            {%csrf_token%}
+            {{update_mark_form.as_p}}
+            <input class="btn btn-dark" type="submit" name="upd_mark" value="Изменить отметку">
+        </form>
+    {%endif%}
+</div><br>
+<h4>Комментарии</h4>
+{% if user.is_authenticated %}
+    <form method="post">
+    {% csrf_token %}
+        {{msgForm | crispy}}<br>
+        <button type="submit" name="msgpost" class="btn btn-dark">Оставить сообщение</button>
+    </form><br>
+{% endif %}
+<div id="history">
+    {% for message in msgs %}
+        <div class="card">
+        <div class="card-body">
+            <strong>
+                {{message.user.first_name}} "{{ message.user.username }}" {{message.user.last_name}}
+            </strong>
+            <br/>
+            <em>
+                {{ message.pubdate|date:'Y-m-d H:i:s' }}
+            </em>
+            <br/>
+            {{ message.message }}
+        </div>
+        </div>
+        <br/>
+    {% endfor %}
+</div>
+{%endblock main%}

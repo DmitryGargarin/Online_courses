@@ -1,0 +1,27 @@
+{%extends "base.html"%}
+{%block main%}
+<div>
+    <h1>Список доступных курсов:</h1><br>
+    <div style="border: 1px solid black">
+        {%for course in courses%}
+            <a href="/course?id={{course.id}}">{{course.name}} - (создан {{course.pubdate}})</a><br>
+        {%endfor%}
+    </div>
+    <hr>
+    {%if user.is_authenticated and user.is_staff%}
+        <h4>Добавить новый курс: </h4>
+        <form method="post">
+            {%csrf_token%}
+            {{course_add_form.as_p}}
+            <input type="submit" name="add_course" value="Добавить курс">
+        </form>
+        <hr>
+        <h4>Удалить курс: </h4>
+            <form method="post">
+                {%csrf_token%}
+                {{course_delete_form.as_p}}
+                <input type="submit" name="del_course" value="Удалить курс">
+            </form>
+</div>
+{%endif%}
+{%endblock main%}

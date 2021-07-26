@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{%extends "base.html"%}
+{%block main%}
+<h2>Название лекции: {{lecture.name}}</h2>
+<p>Презентация: {{lecture.presentation}}</p>
+<p>Домашнее задание к лекции: {{lecture.task}}</p>
+{%if user.is_staff%}
+<div style="border: 1px solid black">
+    <h4>Сделанные ДЗ:</h4>
+    {%for hw in homeworks%}
+        <a href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
+    {%empty%}
+        <p>Нет выполненных ДЗ</p>
+    {%endfor%}
+</div><hr>
+<h4>Изменить лекцию: </h4>
+        <form method="post">
+            {%csrf_token%}
+            {{lecture_update_form.as_p}}
+            <input class="btn btn-dark" type="submit" name="upd_lecture" value="Изменить лекцию">
+        </form>
+<hr>
+{%endif%}
+{%if not user.is_staff%}
+<h4>Добавленное домашнее задание:</h4>
+{%for hw in homeworks_user%}
+        <a href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
+    {%empty%}
+        <p>Вы ещё не добавили домашнее задание</p>
+    {%endfor%}
+<h4>Добавить домашнее задание: </h4>
+        <form method="post">
+            {%csrf_token%}
+            {{homework_add_form.as_p}}
+            <input class="btn btn-dark" type="submit" name="add_homework" value="Добавить домашнее задание">
+        </form>
+<hr>
+{%endif%}
+<a class="btn btn-dark" href="/course?id={{lecture.course_id}}">Вернуться к курсу</a>
+
+{%endblock main%}

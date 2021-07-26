@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{%extends "base.html"%}
+{%block main%}
+<h3>Название курса: {{course.name.lower}}</h3>
+{%if user in studs or user in lects or user.is_superuser%}
+    <div style="border: 2px solid black">
+        <h1>Лекторы</h1>
+            {%for lect in lects%}
+                <p>{{lect.first_name}} "{{lect.username}}" {{lect.last_name}}</p>
+            {%empty%}
+                <p>Empty</p>
+        {%endfor%}
+    </div>
+    <br/><br/>
+    <div style="border: 2px solid black">
+        <h1>Студенты</h1>
+            {%for stud in studs%}
+                <p>{{stud.first_name}} "{{stud.username}}" {{stud.last_name}}</p>
+            {%empty%}
+                <p>Empty</p>
+        {%endfor%}
+    </div>
+    <br/><br/>
+    <div style="border: 2px solid black">
+        <h1>Лекции:</h1>
+        {%for lect in lectures%}
+            <a href="/lecture?id={{lect.id}}">{{lect.name}} (добавлена {{lect.pubdate}})</a><br>
+        {%empty%}
+            <p>Никаких лекций нет</p>
+        {%endfor%}
+    </div>
+    <hr>
+    {%if user.is_authenticated and user.is_staff%}
+        <h4>Добавить новую лекцию: </h4>
+            <form method="post" enctype="multipart/form-data">
+            {%csrf_token%}
+            {{lecture_add_form.as_p}}
+            <input class="btn btn-dark" type="submit" name="add_lecture" value="Добавить лекцию">
+        </form>
+        <hr>
+        <h4>Удалить лекцию: </h4>
+            <form method="post" enctype="multipart/form-data">
+            {%csrf_token%}
+            {{lecture_delete_form.as_p}}
+            <input class="btn btn-dark" type="submit" name="del_lecture" value="Удалить лекцию">
+        </form>
+        <hr>
+        <h4>Изменить курс: </h4>
+            <form method="post">
+                {%csrf_token%}
+                {{course_update_form.as_p}}
+                <input class="btn btn-dark" type="submit" name="upd_course" value="Изменить курс">
+            </form>
+        <h4>Добавить пользователя: </h4>
+            <form method="post">
+                {%csrf_token%}
+                {{add_delete_user_form.as_p}}
+                <input class="btn btn-dark" type="submit" name="add_user" value="Добавить пользователя">
+            </form>
+        <h4>Удалить пользователя: </h4>
+            <form method="post">
+                {%csrf_token%}
+                {{add_delete_user_form.as_p}}
+                <input class="btn btn-dark" type="submit" name="del_user" value="Удалить пользователя">
+            </form>
+    <br>
+    <a class="btn btn-dark" href="/">Назад</a>
+    {%endif%}
+{%else%}
+    <h3>Вы не записаны на курс</h3>
+{%endif%}
+{%endblock main%}

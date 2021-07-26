@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+{%extends "base.html"%}
+{%block main%}
+<h1>Personal page</h1>
+<a href="/">Mainpage link</a>
+{%if user.is_authenticated%}
+<p>Hello, {{user.first_name}} {{user.last_name}}</p>
+{%endif%}
+{%endblock main%}

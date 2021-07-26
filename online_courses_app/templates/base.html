@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online courses</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+<body>
+    <header style="height: 100px;">
+                {% if user.is_authenticated %}
+                    <p class="text-right menu-bar" style="float: right">
+                        <a href="/logout" class="btn btn-dark" style="margin:10px 10px 0px 0px;">Выйти</a>
+                        <a href="/personal" class="btn btn-dark" style="margin:10px 10px 0px 0px;">Личный кабинет</a>
+                    </p>
+                {% else %}
+                    <p class="text-right menu-bar" style="float: right">
+                        <a href="/login" class="btn btn-dark" style="margin:10px 10px 0px 0px;">Войти</a>
+                        <a href="/register" class="btn btn-dark" style="margin:10px 10px 0px 0px;">Регистрация</a>
+                    </p>
+                {% endif %}
+    </header>
+{%block main%}
+{%endblock main%}
+</body>
+</html>
