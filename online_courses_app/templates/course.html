@@ -24,7 +24,7 @@
     <div style="border: 2px solid black">
         <h1>Лекции:</h1>
         {%for lect in lectures%}
-            <a href="/lecture?id={{lect.id}}">{{lect.name}} (добавлена {{lect.pubdate}})</a><br>
+            <a class="link-color" href="/lecture?id={{lect.id}}">{{lect.name}} (добавлена {{lect.pubdate}})</a><br>
         {%empty%}
             <p>Никаких лекций нет</p>
         {%endfor%}

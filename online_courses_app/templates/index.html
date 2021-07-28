@@ -4,7 +4,7 @@
     <h1>Список доступных курсов:</h1><br>
     <div style="border: 1px solid black">
         {%for course in courses%}
-            <a href="/course?id={{course.id}}">{{course.name}} - (создан {{course.pubdate}})</a><br>
+            <a class="link-color" href="/course?id={{course.id}}">{{course.name}} - (создан {{course.pubdate}})</a><br>
         {%endfor%}
     </div>
     <hr>
@@ -13,14 +13,14 @@
         <form method="post">
             {%csrf_token%}
             {{course_add_form.as_p}}
-            <input type="submit" name="add_course" value="Добавить курс">
+            <input class="btn btn-dark" type="submit" name="add_course" value="Добавить курс">
         </form>
         <hr>
         <h4>Удалить курс: </h4>
             <form method="post">
                 {%csrf_token%}
                 {{course_delete_form.as_p}}
-                <input type="submit" name="del_course" value="Удалить курс">
+                <input class="btn btn-dark" type="submit" name="del_course" value="Удалить курс">
             </form>
 </div>
 {%endif%}

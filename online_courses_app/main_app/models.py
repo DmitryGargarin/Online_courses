@@ -20,10 +20,6 @@ def validate_file_extension(value):
 class Course(models.Model):
     name = models.CharField(max_length=50)
     users = models.ManyToManyField(User)
-    # startdate = models.DateField()
-    # enddate = models.DateField()
-    # starttime = models.TimeField()
-    # endtime = models.TimeField()
     pubdate = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -32,26 +28,13 @@ class Course(models.Model):
 
 class Lecture(models.Model):
     name = models.CharField(max_length=50)
-    presentation = models.FileField(upload_to="uploads/presentations/")
+    presentation = models.FileField(upload_to="static/uploads/presentations/", validators=[validate_file_extension])
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     task = models.CharField(max_length=300, default="")
     pubdate = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.id) + " - " + self.name
-
-    def is_valid(self):
-        ext = os.path.splitext(self.presentation.name)[1]  # [0] returns path+filename
-        valid_extensions = ['.pdf', '.pptx']
-        if not ext.lower() in valid_extensions:
-            raise ValidationError('Unsupported file extension.')
-        else:
-            # в Питоне невозможно найти путь файла, который выбрал сам пользователь
-            print(os.path.abspath(self.presentation.path))
-            print(os.path.join(settings.BASE_DIR, "uploads\presentations"))
-            # copyfile(os.path.abspath(self.presentation.name),
-            #          os.path.join(settings.BASE_DIR, "uploads\presentations"))
-            return True
+        return str(self.id) + " - " + self.name + " - " + str(self.presentation) + " - " + str(self.course) + " - " + str(self.task)
 
 
 class Homework(models.Model):
@@ -63,8 +46,8 @@ class Homework(models.Model):
         (1, "Awful"),
         (0, "Not checked")
     ]
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="lecture_name")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='name')
     pubdate = models.DateTimeField(auto_now_add=True)
     answer = models.CharField(max_length=100)
     mark = models.IntegerField(choices=MARKS)
@@ -80,4 +63,4 @@ class Comment(models.Model):
     pubdate = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.id) + " - " + self.user + " " + self.pubdate
+        return str(self.id) + " - " + str(self.user) + " " + str(self.pubdate)

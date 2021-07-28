@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {%block main%}
 <h2>Домашняя работа (студент {{homework.student.first_name}} {{homework.student.last_name}})</h2>
-<a href="/lecture?id={{homework.lecture.id}}">Lecture link</a>
+<a class="btn btn-dark" href="/lecture?id={{homework.lecture.id}}">Перейти к лекции</a><br><br>
 <div style="border: 1px solid black">
     <h2>Задание:</h2>{{homework.lecture.task}}
 </div><br>

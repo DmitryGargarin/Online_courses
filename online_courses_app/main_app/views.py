@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import logout, login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
@@ -7,10 +9,18 @@ from django.shortcuts import render
 # Create your views here.
 from django.views import View
 from django.views.generic import FormView
+from rest_framework.permissions import BasePermission
 
 from .forms import CourseForm, LectureForm, CourseDeleteForm, CourseUpdateForm, LectureDeleteForm, LectureUpdateForm, \
     MessageForm, HomeworkAddForm, AddDeleteUserForm, UpdateMarkForm
-from .models import Course, Lecture, validate_file_extension, Homework, Comment
+from .models import Course, Lecture, Homework, Comment
+
+from django.contrib.auth.models import User, Group
+from rest_framework import viewsets, mixins, generics
+from rest_framework import permissions
+from .serializers import UserSerializer, CourseSerializer, LectureSerializer, HomeworkSerializer, CommentSerializer
+
+presentation_path = "static\\uploads\\presentations"
 
 
 def index(request):
@@ -64,9 +74,10 @@ def course(request):
                 instance.delete()
         elif "add_lecture" in request.POST:
             lecture_new = LectureForm(request.POST, request.FILES)
-            lecture_new.course_id = course.id
             if lecture_new.is_valid():
-                lecture_new.save()
+                lect_new = lecture_new.save(commit=False)
+                lect_new.course_id = course.id
+                lect_new.save()
         elif "add_user" in request.POST:
             new_user = User.objects.get(username=request.POST.get("username", ""))
             course.users.add(new_user)
@@ -100,9 +111,14 @@ def lecture(request):
 
     if request.method == 'POST':
         if "upd_lecture" in request.POST:
-            curr_lecture = LectureUpdateForm(request.POST, instance=lecture)
+            curr_lecture = LectureUpdateForm(request.POST, request.FILES, instance=lecture)
             if curr_lecture.is_valid():
-                curr_lecture.save()
+                curr_lect = curr_lecture.save(commit=False)
+                curr_lect.presentation = os.path.join(presentation_path,
+                                                      request.POST.get("presentation", "")) \
+                    # Нужно скопировать этот файл в путь презентации
+                curr_lect_form = LectureForm(request.POST, request.FILES)
+                curr_lect.save()
         if "add_homework" in request.POST:
             hw = Homework(lecture=lecture,
                           student=request.user,
@@ -129,13 +145,13 @@ def lecture(request):
 def homework(request):
     hm = Homework.objects.get(id=request.GET.get("id", 0))
     msgForm = MessageForm()
-    latest_msgs = Comment.objects.all().filter(homework__exact=hm.id).order_by('-pubdate')
+    latest_msgs = Comment.objects.all().filter(homework__exact=hm.id).order_by('pubdate')
     update_mark_form = UpdateMarkForm()
     if request.method == 'POST':
         if "msgpost" in request.POST:
             msg = Comment(homework=hm,
-                                 user=request.user,
-                                 message=request.POST.get("message", 0))
+                          user=request.user,
+                          message=request.POST.get("message", 0))
             msg.save()
         if "upd_mark" in request.POST:
             updated_mark = UpdateMarkForm(request.POST, instance=hm)
@@ -144,9 +160,9 @@ def homework(request):
     else:
         msgForm = MessageForm()
         update_mark_form = UpdateMarkForm()
-    data = {"homework": hm, 
-            "msgs": latest_msgs, 
-            "msgForm": msgForm, 
+    data = {"homework": hm,
+            "msgs": latest_msgs,
+            "msgForm": msgForm,
             "update_mark_form": update_mark_form}
     return render(request, "homework.html", context=data)
 
@@ -163,6 +179,7 @@ class RegisterFormView(FormView):
         form.save()
         return super(RegisterFormView, self).form_valid(form)
 
+
 class LoginFormView(FormView):
     form_class = AuthenticationForm
     template_name = "reg/login.html"
@@ -178,3 +195,34 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return HttpResponseRedirect(app_url)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
+
+
+class CourseViewSet(viewsets.ModelViewSet):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class LectureViewSet(viewsets.ModelViewSet):
+    queryset = Lecture.objects.all()
+    serializer_class = LectureSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class HomeworkViewSet(viewsets.ModelViewSet):
+    queryset = Homework.objects.all()
+    serializer_class = HomeworkSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+

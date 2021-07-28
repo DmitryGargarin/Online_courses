@@ -2,13 +2,14 @@
 {%extends "base.html"%}
 {%block main%}
 <h2>Название лекции: {{lecture.name}}</h2>
-<p>Презентация: {{lecture.presentation}}</p>
+<p>src="{{lecture.presentation}}"<p/>
+<iframe src="{{lecture.presentation}}" frameborder="0" width="960" height="749" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
 <p>Домашнее задание к лекции: {{lecture.task}}</p>
 {%if user.is_staff%}
 <div style="border: 1px solid black">
     <h4>Сделанные ДЗ:</h4>
     {%for hw in homeworks%}
-        <a href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
+        <a class="link-color" href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
     {%empty%}
         <p>Нет выполненных ДЗ</p>
     {%endfor%}
@@ -24,7 +25,7 @@
 {%if not user.is_staff%}
 <h4>Добавленное домашнее задание:</h4>
 {%for hw in homeworks_user%}
-        <a href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
+        <a class="link-color" href="/homework?id={{hw.id}}">{{hw.student.first_name}} {{hw.student.last_name}}</a><br>
     {%empty%}
         <p>Вы ещё не добавили домашнее задание</p>
     {%endfor%}
