@@ -18,6 +18,8 @@ from .models import Course, Lecture, Homework, Comment
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, mixins, generics
 from rest_framework import permissions
+
+from .permissions import IsAddedToCourse, IsHasPermissionToLecture, IsOwnerStudentOrStaff, IsAccessedToComments
 from .serializers import UserSerializer, CourseSerializer, LectureSerializer, HomeworkSerializer, CommentSerializer
 
 presentation_path = "static\\uploads\\presentations"
@@ -115,8 +117,7 @@ def lecture(request):
             if curr_lecture.is_valid():
                 curr_lect = curr_lecture.save(commit=False)
                 curr_lect.presentation = os.path.join(presentation_path,
-                                                      request.POST.get("presentation", "")) \
-                    # Нужно скопировать этот файл в путь презентации
+                                                      request.POST.get("presentation", ""))
                 curr_lect_form = LectureForm(request.POST, request.FILES)
                 curr_lect.save()
         if "add_homework" in request.POST:
@@ -206,23 +207,23 @@ class UserViewSet(viewsets.ModelViewSet):
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAddedToCourse]
 
 
 class LectureViewSet(viewsets.ModelViewSet):
     queryset = Lecture.objects.all()
     serializer_class = LectureSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsHasPermissionToLecture]
 
 
 class HomeworkViewSet(viewsets.ModelViewSet):
     queryset = Homework.objects.all()
     serializer_class = HomeworkSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerStudentOrStaff]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAccessedToComments]
 
